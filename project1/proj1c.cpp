@@ -1,5 +1,6 @@
 #include "opencv2/highgui.hpp"
 #include <iostream>
+#include <cmath>
 using namespace cv;
 using namespace std;
 
@@ -149,9 +150,16 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         }
 
 
-    //	   The transformation should be based on the
-    //	   historgram of the pixels in the W1,W2,H1,H2 range.
-    //	   The following code goes over these pixels
+    //     The transformation should be based on the
+    //     historgram of the pixels in the W1,W2,H1,H2 range.
+    //     The following code goes over these pixels
+
+    Mat M = (Mat_<double>(3,3) << 3.240479, -1.53715, -0.498535,
+            -0.969256, 1.875991, 0.041556,
+            0.055648, -0.204043, 1.057311);
+    Mat M_inv = (Mat_<double>(3,3) << 0.412453, 0.35758, 0.180423,
+            0.212671, 0.71516, 0.072169,
+            0.019334, 0.119193, 0.950227);
 
     double** L = new double*[rows];
     double** u = new double*[rows];
@@ -162,6 +170,20 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         v[i] = new double[cols];
     }
 
+    // Histogram values init
+    int* histogram = new int[101];
+    int* pixels_in_range = new int[101];
+    int* exchange = new int[101];
+    double* stretched = new double[101];
+    
+    pixels_in_range[-1] = 0;
+    for(int k=0;k<101;k++){
+        histogram[k] = 0;
+        pixels_in_range[k] = 0;
+        exchange[k] = k;
+        stretched[k] = k;
+    }
+
     // sRGB to Luv
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
@@ -169,52 +191,70 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
 
-            // Non Linear RGB
             Mat Luv = rgbtoluv(r, g, b);
 
             L[i][j] = Luv.at<double>(0);
             u[i][j] = Luv.at<double>(1);
             v[i][j] = Luv.at<double>(2);
 
+            histogram[int(round(L[i][j]))]++;
+
         }
+    
+    // Histogram Equalization
+    for(int k=0;k<101;k++){
+        pixels_in_range[k] = pixels_in_range[k-1] + histogram[k];
+    }
+    int max_pixels = pixels_in_range[100];
+    for(int k=0;k<101;k++){
+        exchange[k] = round((pixels_in_range[k-1]+pixels_in_range[k])*101/max_pixels);
+    }
 
     // Finding Max of L
     double max_L = 0.0;
-    double min_L = 100.0;
+    double min_L = 1000000.0;
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
-            if(max_L<L[i][j]){
-                max_L = L[i][j];
+            double L_val = exchange[int(round(L[i][j]))];
+            if(max_L<L_val){
+                max_L = L_val;
             }
-            if(min_L>L[i][j]){
-                min_L = L[i][j];
+            if(min_L>L_val){
+                min_L = L_val;
             }
         }
+
+    // Histogram values stretching
+    for(int k=0;k<101;k++){
+        stretched[k] = (double) (((exchange[k]-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
+        cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
+        << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
+    }
 
     // Luv to sRGB
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
             
-            double L_val = L[i][j];
             double u_val = u[i][j];
             double v_val = v[i][j];
+            double L_val = L[i][j];
 
             // Stretched values
-            // L_val = (double) (((L_val-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
+            L_val = stretched[int(round(L[i][j]))] ;
 
             Mat srgb = luvtorgb(L_val, u_val, v_val);
 
             // if(R[i][j]!=(int) srgb.at<double>(0) * 255){
             //     cout << "RGB Old " << R[i][j] << ", " << G[i][j] << ", " << B[i][j] << endl;
-            //     cout << "RGB New " << (int) srgb.at<double>(0)
-            //     << ", " << (int) srgb.at<double>(1)
-            //     << ", " << (int) srgb.at<double>(2) << endl;
+            //     cout << "RGB New " << (int) srgb.at<double>(0) * 255
+            //     << ", " << (int) srgb.at<double>(1) * 255
+            //     << ", " << (int) srgb.at<double>(2) * 255 << endl;
             // }
 
             // int values of non-linear RGB stretched to 0-255
-            R[i][j] = (int) (srgb.at<double>(0) * 255);
-            G[i][j] = (int) (srgb.at<double>(1) * 255);
-            B[i][j] = (int) (srgb.at<double>(2) * 255);
+            R[i][j] = (int) (srgb.at<double>(0)*255);
+            G[i][j] = (int) (srgb.at<double>(1)*255);
+            B[i][j] = (int) (srgb.at<double>(2)*255);
         }
 
     Mat oR(rows, cols, CV_8UC1);

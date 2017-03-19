@@ -4,6 +4,91 @@
 using namespace cv;
 using namespace std;
 
+Mat M = (Mat_<double>(3,3) << 3.240479, -1.53715, -0.498535,
+    -0.969256, 1.875991, 0.041556,
+    0.055648, -0.204043, 1.057311);
+
+Mat xyytorgb(double x, double y, double Y){
+    double X = x/y;
+    double Z = (1-x-y)/y;
+
+    Mat XYZ = (Mat_<double>(3,1) << X,Y,Z);
+    Mat srgb = M*XYZ;
+    // cout << "Old "<<  srgb.at<double>(0) << endl;
+    for(int k=0;k<3;k++){
+        if(srgb.at<double>(k) < 0.00304){
+            srgb.at<double>(k) = 12.92*srgb.at<double>(k);
+        }
+        else{
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+        }
+    }
+
+    // Clipping
+    for(int k=0;k<3;k++){
+        if(srgb.at<double>(k) < 0.0){
+            srgb.at<double>(k) = 0.0;
+        }
+        else if(srgb.at<double>(k) > 1.0){
+            srgb.at<double>(k) = 1.0;
+        }
+    }
+
+    return srgb;
+}
+
+Mat luvtorgb(double L, double u, double v){
+
+    double X, Y, Z;
+
+    // Luv to XYZ
+    double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
+    double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
+
+    double u_prime = (double(u) + 13.0*u_w*L)/(13.0*L);
+    double v_prime = (double(v) + 13.0*v_w*L)/(13.0*L);
+
+    if(L>7.9996){
+        Y = (double) pow((L + 16.0)/116.0, 3);
+    }
+    else{
+        Y = (double) (L/903.3);
+    }
+
+    X = (double) Y*2.25*(u_prime/v_prime);
+    Z = (double) Y*(3.0-(0.75*u_prime)-(5.0*v_prime))/v_prime;
+    if(v_prime==0.0){
+        X=0.0; Z=0.0;
+    }
+
+    // XYZ to Linear sRGB
+    Mat XYZ = (Mat_<double>(3,1) << X,Y,Z);
+    Mat srgb = M*XYZ;
+    
+    // Linear to Non Linear sRGB
+    for(int k=0;k<3;k++){
+        if(srgb.at<double>(k) < 0.00304){
+            srgb.at<double>(k) = 12.92*srgb.at<double>(k);
+        }
+        else{
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+        }
+    }
+
+    //Clipping
+    for(int k=0;k<3;k++){
+        if(srgb.at<double>(k) < 0.0){
+            srgb.at<double>(k) = 0.0;
+        }
+        else if(srgb.at<double>(k) > 1.0){
+            srgb.at<double>(k) = 1.0;
+        }
+    }
+
+    return srgb;
+}
+
+
 int main(int argc, char** argv) {
     if(argc != 3) {
         cout << argv[0] << ": "
@@ -50,80 +135,10 @@ int main(int argc, char** argv) {
             */
             
             // Find a solution for xyY
-            double X = x/y;
-            double Z = (1-x-y)/y;
+            Mat srgb = xyytorgb(x, y, Y);
 
-            Mat M = (Mat_<double>(3,3) << 3.240479, -1.53715, -0.498535,
-            -0.969256, 1.875991, 0.041556,
-            0.055648, -0.204043, 1.057311);
-
-            Mat XYZ = (Mat_<double>(3,1) << X,Y,Z);
-            Mat srgb = M*XYZ;
-            // cout << "Old "<<  srgb.at<double>(0) << endl;
-            for(int k=0;k<3;k++){
-                if(srgb.at<double>(k) < 0.00304){
-                    srgb.at<double>(k) = 12.92*srgb.at<double>(k);
-                }
-                else{
-                    srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
-                }
-            }
-            // cout << "New "<< srgb.at<double>(0) << endl;
-
-            // Clipping
-            for(int k=0;k<3;k++){
-                if(srgb.at<double>(k) < 0.0){
-                    srgb.at<double>(k) = 0.0;
-                }
-                else if(srgb.at<double>(k) > 1.0){
-                    srgb.at<double>(k) = 1.0;
-                }
-            }
-
-            // Find Solution for Luv
-
-            double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
-            double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
-
-            double u_prime = (double(u) + 13.0*u_w*L)/(13.0*L);
-            double v_prime = (double(v) + 13.0*v_w*L)/(13.0*L);
-
-            // cout << L <<  endl;
-            if(L>7.9996){
-                Y = (double) pow((L + 16.0)/116.0, 3);
-            }
-            else{
-                Y = (double) (L/903.3);
-            }
-
-            X = (double) Y*2.25*(u_prime/v_prime);
-            Z = (double) Y*(3.0-(0.75*u_prime)-(5.0*v_prime))/v_prime;
-            if(v_prime==0.0){
-                X=0.0; Z=0.0;
-            }
-
-            Mat XYZ2 = (Mat_<double>(3,1) << X,Y,Z);
-            Mat srgb2 = M*XYZ2;
-            // cout << "Old "<<  srgb.at<double>(0) << endl;
-            for(int k=0;k<3;k++){
-                if(srgb2.at<double>(k) < 0.00304){
-                    srgb2.at<double>(k) = 12.92*srgb.at<double>(k);
-                }
-                else{
-                    srgb2.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
-                }
-            }
-
-            //Clipping
-            for(int k=0;k<3;k++){
-                if(srgb2.at<double>(k) < 0.0){
-                    srgb2.at<double>(k) = 0.0;
-                }
-                else if(srgb2.at<double>(k) > 1.0){
-                    srgb2.at<double>(k) = 1.0;
-                }
-            }
-            
+            // Find Solution for Luv            
+            Mat srgb2 = luvtorgb(L, u, v);
 
             r1 = (int) (srgb.at<double>(0) * 255);
             g1 = (int) (srgb.at<double>(1) * 255);

@@ -1,5 +1,6 @@
 #include "opencv2/highgui.hpp"
 #include <iostream>
+#include <cmath>
 using namespace cv;
 using namespace std;
 
@@ -10,7 +11,7 @@ Mat M_inv = (Mat_<double>(3,3) << 0.412453, 0.35758, 0.180423,
         0.212671, 0.71516, 0.072169,
         0.019334, 0.119193, 0.950227);
 
-Mat rgbtoluv(double r, double g, double b){
+Mat rgbtoxyy(double r, double g, double b){
 
     Mat RGB = (Mat_<double>(3,1) << r, g, b);
 
@@ -31,74 +32,22 @@ Mat rgbtoluv(double r, double g, double b){
     double Y = XYZ.at<double>(1);
     double Z = XYZ.at<double>(2);
 
-    // Calculating subsidiaries for Luv
-    double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
-    double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
+    // Calculating xyY
+    double x = X/(X + Y + Z);
+    double y = Y/(X + Y + Z);
+    
+    Mat xyY = (Mat_<double>(3,1) << x, y, Y);
 
-    double d = X + 15.0 * Y + 3 * Z;
-
-    double u_prime = (4.0*X)/(d);
-    double v_prime = (9.0*Y)/(d);
-
-    double t = Y;
-
-    double L_val;
-
-    // Calculating Final L, u, v
-    if(t>0.008856){
-        L_val = (double) 116*pow(t, double(1/3)) - 16.0;
-    }
-    else{
-        L_val = (double) (t*903.3);
-    }
-    double u_val = 13.0*L_val*(u_prime - u_w);
-    double v_val = 13.0*L_val*(v_prime - v_w);
-
-    // Clipping
-    // if(u_val<0.0)
-    //     u_val=0.0;
-    // else if(u_val>255.0)
-    //     u_val=255.0;
-
-    // if(v_val<0.0)
-    //     v_val=0.0;
-    // else if(v_val>255.0)
-    //     v_val=255.0;
-
-    Mat Luv = (Mat_<double>(3,1) << L_val,u_val,v_val);
-
-    return Luv;
+    return xyY;
 }
 
-Mat luvtorgb(double L, double u, double v){
+Mat xyytorgb(double x, double y, double Y){
+    double X = x/y;
+    double Z = (1-x-y)/y;
 
-    double X, Y, Z;
-
-    // Luv to XYZ
-    double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
-    double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
-
-    double u_prime = (double(u) + 13.0*u_w*L)/(13.0*L);
-    double v_prime = (double(v) + 13.0*v_w*L)/(13.0*L);
-
-    if(L>7.9996){
-        Y = (double) pow((L + 16.0)/116.0, 3);
-    }
-    else{
-        Y = (double) (L/903.3);
-    }
-
-    X = (double) Y*2.25*(u_prime/v_prime);
-    Z = (double) Y*(3.0-(0.75*u_prime)-(5.0*v_prime))/v_prime;
-    if(v_prime==0.0){
-        X=0.0; Z=0.0;
-    }
-
-    // XYZ to Linear sRGB
     Mat XYZ = (Mat_<double>(3,1) << X,Y,Z);
     Mat srgb = M*XYZ;
-    
-    // Linear to Non Linear sRGB
+    // cout << "Old "<<  srgb.at<double>(0) << endl;
     for(int k=0;k<3;k++){
         if(srgb.at<double>(k) < 0.00304){
             srgb.at<double>(k) = 12.92*srgb.at<double>(k);
@@ -108,7 +57,7 @@ Mat luvtorgb(double L, double u, double v){
         }
     }
 
-    //Clipping
+    // Clipping
     for(int k=0;k<3;k++){
         if(srgb.at<double>(k) < 0.0){
             srgb.at<double>(k) = 0.0;
@@ -120,6 +69,7 @@ Mat luvtorgb(double L, double u, double v){
 
     return srgb;
 }
+
 
 void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     int rows = inputImage.rows;
@@ -149,72 +99,71 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         }
 
 
-    //	   The transformation should be based on the
-    //	   historgram of the pixels in the W1,W2,H1,H2 range.
-    //	   The following code goes over these pixels
+    //     The transformation should be based on the
+    //     historgram of the pixels in the W1,W2,H1,H2 range.
+    //     The following code goes over these pixels
 
-    double** L = new double*[rows];
-    double** u = new double*[rows];
-    double** v = new double*[rows];
+    Mat M = (Mat_<double>(3,3) << 3.240479, -1.53715, -0.498535,
+            -0.969256, 1.875991, 0.041556,
+            0.055648, -0.204043, 1.057311);
+    Mat M_inv = (Mat_<double>(3,3) << 0.412453, 0.35758, 0.180423,
+            0.212671, 0.71516, 0.072169,
+            0.019334, 0.119193, 0.950227);
+
+    double** x = new double*[rows];
+    double** y = new double*[rows];
+    double** Y = new double*[rows];
     for(int i = 0 ; i < rows ; i++) {
-        L[i] = new double[cols];
-        u[i] = new double[cols];
-        v[i] = new double[cols];
+        x[i] = new double[cols];
+        y[i] = new double[cols];
+        Y[i] = new double[cols];
     }
 
-    // sRGB to Luv
+    // sRGB to xyY
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
 
-            // Non Linear RGB
-            Mat Luv = rgbtoluv(r, g, b);
+            Mat xyY = rgbtoxyy(r, g, b);
 
-            L[i][j] = Luv.at<double>(0);
-            u[i][j] = Luv.at<double>(1);
-            v[i][j] = Luv.at<double>(2);
+            x[i][j] = xyY.at<double>(0);
+            y[i][j] = xyY.at<double>(1);
+            Y[i][j] = xyY.at<double>(2);
 
         }
 
-    // Finding Max of L
-    double max_L = 0.0;
-    double min_L = 100.0;
+    // Finding Max and Min of Y
+    double max_Y = 0.0;
+    double min_Y = 1000000.0;
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
-            if(max_L<L[i][j]){
-                max_L = L[i][j];
+            if(max_Y<Y[i][j]){
+                max_Y = Y[i][j];
             }
-            if(min_L>L[i][j]){
-                min_L = L[i][j];
+            if(min_Y>Y[i][j]){
+                min_Y = Y[i][j];
             }
         }
 
-    // Luv to sRGB
+    // xyY to sRGB
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
             
-            double L_val = L[i][j];
-            double u_val = u[i][j];
-            double v_val = v[i][j];
+            double x_val = x[i][j];
+            double y_val = y[i][j];
+            double Y_val = Y[i][j];
 
             // Stretched values
-            // L_val = (double) (((L_val-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
+            Y_val = (double) (((Y_val-min_Y) * (100.0 - 0.0)) / (max_Y - min_Y)) + 0.0 ;
 
-            Mat srgb = luvtorgb(L_val, u_val, v_val);
-
-            // if(R[i][j]!=(int) srgb.at<double>(0) * 255){
-            //     cout << "RGB Old " << R[i][j] << ", " << G[i][j] << ", " << B[i][j] << endl;
-            //     cout << "RGB New " << (int) srgb.at<double>(0)
-            //     << ", " << (int) srgb.at<double>(1)
-            //     << ", " << (int) srgb.at<double>(2) << endl;
-            // }
+            Mat srgb = xyytorgb(x_val, y_val, Y_val);
 
             // int values of non-linear RGB stretched to 0-255
-            R[i][j] = (int) (srgb.at<double>(0) * 255);
-            G[i][j] = (int) (srgb.at<double>(1) * 255);
-            B[i][j] = (int) (srgb.at<double>(2) * 255);
+            R[i][j] = (int) (srgb.at<double>(0)*255);
+            G[i][j] = (int) (srgb.at<double>(1)*255);
+            B[i][j] = (int) (srgb.at<double>(2)*255);
         }
 
     Mat oR(rows, cols, CV_8UC1);
