@@ -1,0 +1,130 @@
+32
+
+General configuration for OpenCV 3.2.0 =====================================
+  Version control:               3.2.0
+
+  Extra modules:
+    Location (extra):            /Users/evamy/opencv_contrib/modules
+    Version control (extra):     3.2.0
+
+  Platform:
+    Timestamp:                   2017-03-01T14:29:06Z
+    Host:                        Darwin 16.4.0 x86_64
+    CMake:                       3.7.0
+    CMake generator:             Unix Makefiles
+    CMake build tool:            /usr/bin/make
+    Configuration:               RELEASE
+
+  C/C++:
+    Built as dynamic libs?:      YES
+    C++ Compiler:                /Library/Developer/CommandLineTools/usr/bin/c++  (ver 8.0.0.8000042)
+    C++ flags (Release):         -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wno-narrowing -Wno-delete-non-virtual-dtor -Wno-unnamed-type-template-args -Wno-comment -fdiagnostics-show-option -Wno-long-long -Qunused-arguments -Wno-semicolon-before-method-body -fno-omit-frame-pointer -msse -msse2 -mno-avx -msse3 -mno-ssse3 -mno-sse4.1 -mno-sse4.2 -fvisibility=hidden -fvisibility-inlines-hidden -O3 -DNDEBUG  -DNDEBUG
+    C++ flags (Debug):           -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wno-narrowing -Wno-delete-non-virtual-dtor -Wno-unnamed-type-template-args -Wno-comment -fdiagnostics-show-option -Wno-long-long -Qunused-arguments -Wno-semicolon-before-method-body -fno-omit-frame-pointer -msse -msse2 -mno-avx -msse3 -mno-ssse3 -mno-sse4.1 -mno-sse4.2 -fvisibility=hidden -fvisibility-inlines-hidden -g  -O0 -DDEBUG -D_DEBUG
+    C Compiler:                  /Library/Developer/CommandLineTools/usr/bin/cc
+    C flags (Release):           -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wno-narrowing -Wno-delete-non-virtual-dtor -Wno-unnamed-type-template-args -Wno-comment -fdiagnostics-show-option -Wno-long-long -Qunused-arguments -Wno-semicolon-before-method-body -fno-omit-frame-pointer -msse -msse2 -mno-avx -msse3 -mno-ssse3 -mno-sse4.1 -mno-sse4.2 -fvisibility=hidden -fvisibility-inlines-hidden -O3 -DNDEBUG  -DNDEBUG
+    C flags (Debug):             -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wno-narrowing -Wno-delete-non-virtual-dtor -Wno-unnamed-type-template-args -Wno-comment -fdiagnostics-show-option -Wno-long-long -Qunused-arguments -Wno-semicolon-before-method-body -fno-omit-frame-pointer -msse -msse2 -mno-avx -msse3 -mno-ssse3 -mno-sse4.1 -mno-sse4.2 -fvisibility=hidden -fvisibility-inlines-hidden -g  -O0 -DDEBUG -D_DEBUG
+    Linker flags (Release):
+    Linker flags (Debug):
+    ccache:                      NO
+    Precompiled headers:         NO
+    Extra dependencies:          -framework OpenCL -framework Cocoa -framework AVFoundation -framework CoreGraphics -framework CoreMedia -framework CoreVideo -framework QuartzCore -framework Accelerate
+    3rdparty dependencies:       libjpeg libwebp libpng libtiff libjasper IlmImf zlib libprotobuf
+
+  OpenCV modules:
+    To be built:                 core flann imgproc ml photo reg surface_matching video dnn fuzzy imgcodecs shape videoio highgui objdetect plot superres ts xobjdetect xphoto bgsegm bioinspired dpm face features2d line_descriptor saliency text calib3d ccalib datasets rgbd stereo tracking videostab xfeatures2d ximgproc aruco optflow phase_unwrapping stitching structured_light python2
+    Disabled:                    world contrib_world
+    Disabled by dependency:      -
+    Unavailable:                 cudaarithm cudabgsegm cudacodec cudafeatures2d cudafilters cudaimgproc cudalegacy cudaobjdetect cudaoptflow cudastereo cudawarping cudev java python3 viz cnn_3dobj cvv freetype hdf matlab sfm
+
+  GUI: 
+    QT:                          NO
+    Cocoa:                       YES
+    OpenGL support:              NO
+    VTK support:                 NO
+
+  Media I/O: 
+    ZLib:                        build (ver 1.2.8)
+    JPEG:                        build (ver 90)
+    WEBP:                        build (ver 0.3.1)
+    PNG:                         build (ver 1.6.24)
+    TIFF:                        build (ver 42 - 4.0.2)
+    JPEG 2000:                   build (ver 1.900.1)
+    OpenEXR:                     build (ver 1.7.1)
+    GDAL:                        NO
+    GDCM:                        NO
+
+  Video I/O:
+    DC1394 1.x:                  NO
+    DC1394 2.x:                  NO
+    FFMPEG:                      NO
+      avcodec:                   NO
+      avformat:                  NO
+      avutil:                    NO
+      swscale:                   NO
+      avresample:                NO
+    GStreamer:                   NO
+    OpenNI:                      NO
+    OpenNI PrimeSensor Modules:  NO
+    OpenNI2:                     NO
+    PvAPI:                       NO
+    GigEVisionSDK:               NO
+    Aravis SDK:                  NO
+    AVFoundation:                YES
+    V4L/V4L2:                    NO/NO
+    XIMEA:                       NO
+    gPhoto2:                     NO
+
+  Parallel framework:            GCD
+
+  Other third-party libraries:
+    Use IPP:                     9.0.1 [9.0.1]
+         at:                     /Users/evamy/opencv/build/3rdparty/ippicv/ippicv_osx
+    Use IPP Async:               NO
+    Use VA:                      NO
+    Use Intel VA-API/OpenCL:     NO
+    Use Lapack:                  YES (-framework Accelerate)
+    Use Eigen:                   YES (ver 3.3.0)
+    Use Cuda:                    NO
+    Use OpenCL:                  YES
+    Use OpenVX:                  NO
+    Use custom HAL:              NO
+
+  OpenCL:                        <Link with OpenCL library>
+    Link libraries:              -framework OpenCL
+    Use AMDFFT:                  NO
+    Use AMDBLAS:                 NO
+
+  Python 2:
+    Interpreter:                 /usr/local/bin/python2.7 (ver 2.7.12)
+    Libraries:                   /usr/local/Cellar/python/2.7.12/Frameworks/Python.framework/Versions/2.7/bin (ver 2.7.12)
+    numpy:                       /usr/local/lib/python2.7/site-packages/numpy/core/include (ver 1.11.3)
+    packages path:               /usr/local/lib/python2.7/site-packages
+
+  Python 3:
+    Interpreter:                 NO
+
+  Python (for build):            /usr/local/bin/python2.7
+
+  Java:
+    ant:                         NO
+    JNI:                         /Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/include /Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/include/darwin /Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/include
+    Java wrappers:               NO
+    Java tests:                  NO
+
+  Matlab:                        Matlab not found or implicitly disabled
+
+  Documentation:
+    Doxygen:                     NO
+
+  Tests and samples:
+    Tests:                       YES
+    Performance tests:           YES
+    C/C++ Examples:              YES
+
+  Install path:                  /Users/evamy/opencv/build
+
+  cvconfig.h is in:              /Users/evamy/opencv/build
+-----------------------------------------------------------------
+
+
+Saved PNG file with alpha data.
