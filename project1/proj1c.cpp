@@ -105,7 +105,7 @@ Mat luvtorgb(double L, double u, double v){
             srgb.at<double>(k) = 12.92*srgb.at<double>(k);
         }
         else{
-            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1.0/2.4)) - 0.055;
         }
     }
 

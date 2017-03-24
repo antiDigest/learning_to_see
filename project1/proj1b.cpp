@@ -46,7 +46,7 @@ Mat rgbtoluv(double r, double g, double b){
 
     // Calculating Final L, u, v
     if(t>0.008856){
-        L_val = (double) 116*pow(t, double(1/3)) - 16.0;
+        L_val = (double) 116.0 * pow(t, double(1.0/3.0)) - 16.0;
     }
     else{
         L_val = (double) (t*903.3);
@@ -200,7 +200,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
             double v_val = v[i][j];
 
             // Stretched values
-            // L_val = (double) (((L_val-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
+            L_val = (double) (((L_val-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
 
             Mat srgb = luvtorgb(L_val, u_val, v_val);
 
