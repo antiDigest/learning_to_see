@@ -83,7 +83,7 @@ Mat luvtorgb(double L, double u, double v){
     double v_prime = (double(v) + 13.0*v_w*L)/(13.0*L);
 
     if(L>7.9996){
-        Y = (double) pow((L + 16.0)/116.0, 3);
+        Y = (double) pow((L + 16.0)/116.0, 3.0);
     }
     else{
         Y = (double) (L/903.3);
@@ -196,10 +196,11 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
             L[i][j] = Luv.at<double>(0);
             u[i][j] = Luv.at<double>(1);
             v[i][j] = Luv.at<double>(2);
-
-            histogram[int(round(L[i][j]))]++;
-
         }
+
+    for(int i = H1 ; i <= H2 ; i++) 
+        for(int j = W1 ; j <= W2 ; j++)
+            histogram[int(round(L[i][j]))]++;
     
     // Histogram Equalization
     for(int k=0;k<101;k++){
@@ -227,8 +228,10 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     // Histogram values stretching
     for(int k=0;k<101;k++){
         stretched[k] = (double) (((exchange[k]-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
+
      //   cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
      //   << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
+
     }
 
     // Luv to sRGB
@@ -272,7 +275,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     merge(o_planes, 3, outImage);
 
     namedWindow("output", CV_WINDOW_AUTOSIZE);
-    imshow("output", outImage);
+    // imshow("output", outImage);
     imwrite(outName, outImage);
 }
 
@@ -308,7 +311,7 @@ int main(int argc, char** argv) {
     windowInput += inputName;
 
     namedWindow(windowInput, CV_WINDOW_AUTOSIZE);
-    imshow(windowInput, inputImage);
+    // imshow(windowInput, inputImage);
 
     if(inputImage.type() != CV_8UC3) {
         cout <<  inputName << " is not a standard color image  " << endl;

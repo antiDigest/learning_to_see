@@ -104,7 +104,7 @@ Mat luvtorgb(double L, double u, double v){
             srgb.at<double>(k) = 12.92*srgb.at<double>(k);
         }
         else{
-            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1.0/2.4)) - 0.055;
         }
     }
 
@@ -160,9 +160,9 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         L[i] = new double[cols];
         u[i] = new double[cols];
         v[i] = new double[cols];
-    }
-
+    
     // sRGB to Luv coversion for whole image
+
     for(int i = 0 ; i < rows ; i++) 
         for(int j = 0 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
@@ -190,6 +190,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
                 min_L = L[i][j];
             }
         }
+
 
     // Luv to sRGB conversion for whole image after scaling on L
     for(int i = 0 ; i < rows ; i++) 
@@ -232,7 +233,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     merge(o_planes, 3, outImage);
 
     namedWindow("output", CV_WINDOW_AUTOSIZE);
-    imshow("output", outImage);
+    // imshow("output", outImage);
     imwrite(outName, outImage);
 }
 
@@ -268,7 +269,7 @@ int main(int argc, char** argv) {
     windowInput += inputName;
 
     namedWindow(windowInput, CV_WINDOW_AUTOSIZE);
-    imshow(windowInput, inputImage);
+    // imshow(windowInput, inputImage);
 
     if(inputImage.type() != CV_8UC3) {
         cout <<  inputName << " is not a standard color image  " << endl;

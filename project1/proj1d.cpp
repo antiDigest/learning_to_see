@@ -42,8 +42,8 @@ Mat rgbtoxyy(double r, double g, double b){
 }
 
 Mat xyytorgb(double x, double y, double Y){
-    double X = x/y;
-    double Z = (1-x-y)/y;
+    double X = (x*Y)/y;
+    double Z = ((1-x-y)*Y)/y;
 
     Mat XYZ = (Mat_<double>(3,1) << X,Y,Z);
     Mat srgb = M*XYZ;
@@ -121,7 +121,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
 
     // sRGB to xyY
     for(int i = 0 ; i < rows ; i++) 
-        for(int j = W1 ; j < cols ; j++) {
+        for(int j = 0 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
@@ -136,7 +136,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
 
     // Finding Max and Min of Y
     double max_Y = 0.0;
-    double min_Y = 1000000.0;
+    double min_Y = 255.0;
     for(int i = H1 ; i <= H2 ; i++) 
         for(int j = W1 ; j <= W2 ; j++) {
             if(max_Y<Y[i][j]){
@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
     windowInput += inputName;
 
     namedWindow(windowInput, CV_WINDOW_AUTOSIZE);
-    imshow(windowInput, inputImage);
+    // imshow(windowInput, inputImage);
 
     if(inputImage.type() != CV_8UC3) {
         cout <<  inputName << " is not a standard color image  " << endl;

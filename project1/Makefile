@@ -1,4 +1,4 @@
-FILES	= proj1a.cpp proj1b.cpp proj1c.cpp proj1d.cpp README.txt
+FILES	= proj1a.cpp proj1b.cpp proj1c.cpp proj1d.cpp README.txt images Makefile
 CFLAGS  =`pkg-config --cflags --libs opencv`
 CC      = clang++
 
@@ -23,6 +23,36 @@ clean:
 
 zip:
 	zip project1.zip $(FILES)
+
+runa:
+	./proj1a.o 500 500
+
+runb:
+	./proj1b.o 0 0 1 1 input/test0.ppm input/20.png
+	./proj1b.o 0.5 0 1 0.5 input/test1.ppm input/21.png
+	./proj1b.o 0 0 1 1 input/test2.ppm input/22.png
+	./proj1b.o 0 0 0.5 0.5 input/test3.ppm input/23.png
+	./proj1b.o 0 0 1 1 input/test4.ppm input/24.png
+
+runc:
+	./proj1c.o 0 0 1 1 input/test0.ppm input/30.png
+	./proj1c.o 0.5 0 1 0.5 input/test1.ppm input/31.png
+	./proj1c.o 0 0 1 1 input/test2.ppm input/32.png
+	./proj1c.o 0 0 0.5 0.5 input/test3.ppm input/33.png
+	./proj1c.o 0 0 1 1 input/test4.ppm input/34.png
+
+rund:
+	./proj1d.o 0 0 1 1 input/test0.ppm input/40.png
+	./proj1d.o 0.5 0 1 0.5 input/test1.ppm input/41.png
+	./proj1d.o 0 0 1 1 input/test2.ppm input/42.png
+	./proj1d.o 0 0 0.5 0.5 input/test3.ppm input/43.png
+	./proj1d.o 0 0 1 1 input/test4.ppm input/44.png
+
+
+# ./proj1b.o 0.3 0.3 0.7 0.7 images/fruits.jpg images/fruits$$(n).png 
+# ./proj1b.o 0.3 0.3 0.7 0.7 images/fruits.jpg images/fruits1.bmp
+# ./proj1c.o 0.3 0.3 0.7 0.7 images/fruits.jpg images/fruits1.bmp
+# ./proj1d.o 0.3 0.3 0.7 0.7 images/fruits.jpg images/fruits1.bmp
 
 # OBJS = MovieList.o Movie.o NameList.o Name.o Iterator.o
 # CC = g++
