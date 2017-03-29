@@ -53,7 +53,7 @@ Mat xyytorgb(double x, double y, double Y){
             srgb.at<double>(k) = 12.92*srgb.at<double>(k);
         }
         else{
-            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1.0/2.4)) - 0.055;
         }
     }
 
@@ -120,8 +120,8 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     }
 
     // sRGB to xyY
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = W1 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
@@ -148,22 +148,22 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         }
 
     // xyY to sRGB
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             
             double x_val = x[i][j];
             double y_val = y[i][j];
             double Y_val = Y[i][j];
 
             // Stretched values
-            Y_val = (double) (((Y_val-min_Y) * (100.0 - 0.0)) / (max_Y - min_Y)) + 0.0 ;
+            Y_val = (double) (((Y_val-min_Y) * (1.0 - 0.0)) / (max_Y - min_Y)) + 0.0 ;
 
             Mat srgb = xyytorgb(x_val, y_val, Y_val);
 
             // int values of non-linear RGB stretched to 0-255
-            R[i][j] = (int) (srgb.at<double>(0)*255);
-            G[i][j] = (int) (srgb.at<double>(1)*255);
-            B[i][j] = (int) (srgb.at<double>(2)*255);
+            R[i][j] = (int) (srgb.at<double>(0)*255.0);
+            G[i][j] = (int) (srgb.at<double>(1)*255.0);
+            B[i][j] = (int) (srgb.at<double>(2)*255.0);
         }
 
     Mat oR(rows, cols, CV_8UC1);
