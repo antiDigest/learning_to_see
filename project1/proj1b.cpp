@@ -104,7 +104,7 @@ Mat luvtorgb(double L, double u, double v){
             srgb.at<double>(k) = 12.92*srgb.at<double>(k);
         }
         else{
-            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1/2.4)) - 0.055;
+            srgb.at<double>(k) = 1.055*pow(srgb.at<double>(k),double(1.0/2.4)) - 0.055;
         }
     }
 
@@ -163,8 +163,8 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     }
 
     // sRGB to Luv
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
@@ -192,8 +192,8 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         }
 
     // Luv to sRGB
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             
             double L_val = L[i][j];
             double u_val = u[i][j];
@@ -232,7 +232,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     merge(o_planes, 3, outImage);
 
     namedWindow("output", CV_WINDOW_AUTOSIZE);
-    imshow("output", outImage);
+    // imshow("output", outImage);
     imwrite(outName, outImage);
 }
 
@@ -268,7 +268,7 @@ int main(int argc, char** argv) {
     windowInput += inputName;
 
     namedWindow(windowInput, CV_WINDOW_AUTOSIZE);
-    imshow(windowInput, inputImage);
+    // imshow(windowInput, inputImage);
 
     if(inputImage.type() != CV_8UC3) {
         cout <<  inputName << " is not a standard color image  " << endl;
