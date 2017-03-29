@@ -36,7 +36,7 @@ Mat rgbtoluv(double r, double g, double b){
     double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
     double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
 
-    double d = X + 15.0 * Y + 3 * Z;
+    double d = X + 15.0 * Y + 3.0 * Z;
 
     double u_prime = (4.0*X)/(d);
     double v_prime = (9.0*Y)/(d);
@@ -47,7 +47,7 @@ Mat rgbtoluv(double r, double g, double b){
 
     // Calculating Final L, u, v
     if(t>0.008856){
-        L_val = (double) 116*pow(t, double(1/3)) - 16.0;
+        L_val = (double) 116*pow(t, double(1.0/3.0)) - 16.0;
     }
     else{
         L_val = (double) (t*903.3);
@@ -185,8 +185,8 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     }
 
     // sRGB to Luv
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
@@ -227,13 +227,13 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     // Histogram values stretching
     for(int k=0;k<101;k++){
         stretched[k] = (double) (((exchange[k]-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
-        cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
-        << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
+     //   cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
+     //   << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
     }
 
     // Luv to sRGB
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             
             double u_val = u[i][j];
             double v_val = v[i][j];
