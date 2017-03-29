@@ -162,9 +162,9 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
         v[i] = new double[cols];
     }
 
-    // sRGB to Luv
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    // sRGB to Luv coversion for whole image
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             double r = R[i][j]/double(255.0);
             double g = G[i][j]/double(255.0);
             double b = B[i][j]/double(255.0);
@@ -178,7 +178,7 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
 
         }
 
-    // Finding Max of L
+    // Finding Max of L in specified window
     double max_L = 0.0;
     double min_L = 100.0;
     for(int i = H1 ; i <= H2 ; i++) 
@@ -191,9 +191,9 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
             }
         }
 
-    // Luv to sRGB
-    for(int i = H1 ; i <= H2 ; i++) 
-        for(int j = W1 ; j <= W2 ; j++) {
+    // Luv to sRGB conversion for whole image after scaling on L
+    for(int i = 0 ; i < rows ; i++) 
+        for(int j = 0 ; j < cols ; j++) {
             
             double L_val = L[i][j];
             double u_val = u[i][j];
