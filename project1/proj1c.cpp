@@ -36,7 +36,7 @@ Mat rgbtoluv(double r, double g, double b){
     double u_w = (double) (4.0*0.95)/(0.95+15.0+3.0*1.09);
     double v_w = (double) (9.0)/(0.95+15.0+3.0*1.09);
 
-    double d = X + 15.0 * Y + 3 * Z;
+    double d = X + 15.0 * Y + 3.0 * Z;
 
     double u_prime = (4.0*X)/(d);
     double v_prime = (9.0*Y)/(d);
@@ -228,8 +228,10 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
     // Histogram values stretching
     for(int k=0;k<101;k++){
         stretched[k] = (double) (((exchange[k]-min_L) * (100.0 - 0.0)) / (max_L - min_L)) + 0.0 ;
-        // cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
-        // << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
+
+     //   cout << "i = " << k << " Histogram = " << histogram[k] << " pixels_in_range = " << pixels_in_range[k]
+     //   << " exchange = " << exchange[k] << " Stretched value = " << stretched[k] << endl;
+
     }
 
     // Luv to sRGB
