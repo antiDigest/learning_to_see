@@ -161,9 +161,9 @@ void runOnWindow(int W1,int H1, int W2,int H2, Mat inputImage, char *outName) {
             Mat srgb = xyytorgb(x_val, y_val, Y_val);
 
             // int values of non-linear RGB stretched to 0-255
-            R[i][j] = (int) (srgb.at<double>(0)*255);
-            G[i][j] = (int) (srgb.at<double>(1)*255);
-            B[i][j] = (int) (srgb.at<double>(2)*255);
+            R[i][j] = (int) (srgb.at<double>(0)*255.0);
+            G[i][j] = (int) (srgb.at<double>(1)*255.0);
+            B[i][j] = (int) (srgb.at<double>(2)*255.0);
         }
 
     Mat oR(rows, cols, CV_8UC1);
