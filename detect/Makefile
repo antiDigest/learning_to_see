@@ -1,3 +1,4 @@
+FILES	= detectWink.cpp detectSilence.cpp Makefile
 CFLAGS  =`pkg-config --cflags --libs opencv`
 CC      = clang++
 
@@ -23,3 +24,11 @@ runwink2:
 
 silence:
 	./detectSilence.o
+
+clean:
+	rm -rf *.o.*
+	rm *.o
+	rm *.zip
+
+zip:
+	zip project2.zip $(FILES)
