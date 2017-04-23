@@ -18,5 +18,8 @@ run:
 runwink:
 	./detectWink.o
 
+runwink2:
+	./detectWink.o ./images
+
 silence:
 	./detectSilence.o
