@@ -16,9 +16,12 @@ using namespace cv;
    Set OPENCV_ROOT to the location of opencv in your system
 */
 // string OPENCV_ROOT = "C:/opencv/";
-// string cascades = OPENCV_ROOT + "build/etc/haarcascades/";
-string FACES_CASCADE_NAME = "haarcascade_frontalface_alt.xml";
-string EYES_CASCADE_NAME = "haarcascade_eye.xml";
+string cascades = "cascades/";
+string FACES_CASCADE_NAME = cascades + "haarcascade_frontalface_alt.xml";
+string EYES_CASCADE_NAME = cascades + "haarcascade_eye.xml";
+string LEFT_EYE = cascades + "haarcascade_mcs_lefteye.xml";
+string RIGHT_EYE = cascades + "haarcascade_mcs_righteye.xml";
+string text = "BLINK!";
 
 
 void drawEllipse(Mat frame, const Rect rect, int r, int g, int b) {
@@ -38,14 +41,41 @@ void drawRect(Mat frame, const Rect rect, int r, int g, int b) {
 }
 
 
-bool detectWink(Mat frame, Point location, Mat ROI, CascadeClassifier cascade) {
+int detectRightEye(Mat frame, Point location, Mat ROI, CascadeClassifier cascade) {
   // frame,ctr are only used for drawing the detected eyes
     vector<Rect> eyes;
-    cascade.detectMultiScale(ROI, eyes, 1.1, 3, 0, Size(20, 20));
+    cascade.detectMultiScale(ROI, eyes, 1.1, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
 
     int neyes = (int)eyes.size();
     for( int i = 0; i < neyes ; i++ ) {
       Rect eyes_i = eyes[i];
+      drawRect(frame, eyes_i + location, 255, 255, 0);
+    }
+    return neyes;
+}
+
+int detectLeftEye(Mat frame, Point location, Mat ROI, CascadeClassifier cascade) {
+  // frame,ctr are only used for drawing the detected eyes
+    vector<Rect> eyes;
+    cascade.detectMultiScale(ROI, eyes, 1.1, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
+
+    int neyes = (int)eyes.size();
+    for( int i = 0; i < neyes ; i++ ) {
+      Rect eyes_i = eyes[i];
+      drawRect(frame, eyes_i + location, 255, 255, 0);
+    }
+    return neyes;
+}
+
+bool detectWink(Mat frame, Point location, Mat ROI, CascadeClassifier cascade) {
+  // frame,ctr are only used for drawing the detected eyes
+    vector<Rect> eyes;
+    cascade.detectMultiScale(ROI, eyes, 1.09, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
+
+    int neyes = (int)eyes.size();
+    for( int i = 0; i < neyes ; i++ ) {
+      Rect eyes_i = eyes[i];
+
       drawRect(frame, eyes_i + location, 255, 255, 0);
     }
     return(neyes == 1);
@@ -53,7 +83,8 @@ bool detectWink(Mat frame, Point location, Mat ROI, CascadeClassifier cascade) {
 
 // you need to rewrite this function
 int detect(Mat frame, 
-       CascadeClassifier cascade_face, CascadeClassifier cascade_eyes) {
+       CascadeClassifier cascade_face, CascadeClassifier cascade_eyes,
+       CascadeClassifier cascade_left_eye, CascadeClassifier cascade_right_eye) {
   Mat frame_gray;
   vector<Rect> faces;
 
@@ -66,7 +97,7 @@ int detect(Mat frame,
 
 
   cascade_face.detectMultiScale(frame_gray, faces, 
-               1.1, 3, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30));
+               1.09, 3, CV_HAAR_DO_CANNY_PRUNING, Size(30, 30));
 
   /* frame_gray - the input image
      faces - the output detections.
@@ -84,10 +115,24 @@ int detect(Mat frame,
   int nfaces = (int)faces.size();
   for( int i = 0; i < nfaces ; i++ ) {
     Rect face = faces[i];
-    drawEllipse(frame, face, 255, 0, 255);
-    Mat faceROI = frame_gray(face);
-    if(detectWink(frame, Point(face.x, face.y), faceROI, cascade_eyes)) {
-      drawEllipse(frame, face, 0, 255, 0);
+    Rect rect = Rect(face.x, face.y+face.height/5, face.width, 2*(face.height/5));
+    Rect rect1 = Rect(face.x+(face.width/2), face.y+face.height/5, face.width/2, 2*(face.height/5));
+    Rect rect2 = Rect(face.x, face.y+face.height/5, face.width/2, 2*(face.height/5));
+    // cout << face << endl;
+    // cout << rect << endl;
+
+    drawRect(frame, face, 255, 0, 255);
+    Mat faceROI = frame_gray(rect);
+    Mat faceROI1 = frame_gray(rect1);
+    Mat faceROI2 = frame_gray(rect2);
+    // int righteyes = detectRightEye(frame, Point(face.x+(face.width/2), face.y+face.height/5), faceROI1, cascade_right_eye);
+    // int lefteyes = detectLeftEye(frame, Point(face.x, face.y+face.height/5), faceROI2, cascade_left_eye);
+    bool wink = detectWink(frame, Point(face.x, face.y+face.height/5), faceROI, cascade_eyes);
+    if(wink) {
+      drawRect(frame, rect, 0, 255, 0);
+      // cout << "Blink Detection1: " << wink << endl;
+      // cout << "Blink Detection2: " << (righteyes+lefteyes==1) << endl;
+      putText(frame, text, Point(rect.x, rect.y), CV_FONT_HERSHEY_PLAIN, 1.0, cvScalar(0,255,0), 1, CV_AA);
       detected++;
     }
   }
@@ -95,7 +140,9 @@ int detect(Mat frame,
 }
 
 int runonFolder(const CascadeClassifier cascade1, 
-        const CascadeClassifier cascade2, 
+        const CascadeClassifier cascade2,
+        const CascadeClassifier cascade3,
+        const CascadeClassifier cascade4,
         string folder) {
   if(folder.at(folder.length()-1) != '/') folder += '/';
   DIR *dir = opendir(folder.c_str());
@@ -112,7 +159,7 @@ int runonFolder(const CascadeClassifier cascade1,
     string dname = folder + name;
     Mat img = imread(dname.c_str(), CV_LOAD_IMAGE_UNCHANGED);
     if(!img.empty()) {
-      int d = detect(img, cascade1, cascade2);
+      int d = detect(img, cascade1, cascade2, cascade3, cascade4);
       cerr << d << " detections" << endl;
       detections += d;
       if(!windowName.empty()) destroyWindow(windowName);
@@ -133,7 +180,9 @@ int runonFolder(const CascadeClassifier cascade1,
 }
 
 void runonVideo(const CascadeClassifier cascade1,
-        const CascadeClassifier cascade2) {
+        const CascadeClassifier cascade2,
+        const CascadeClassifier cascade3,
+        const CascadeClassifier cascade4) {
   VideoCapture videocapture(0);
   if(!videocapture.isOpened()) {
     cerr <<  "Can't open default video camera" << endl ;
@@ -148,7 +197,7 @@ void runonVideo(const CascadeClassifier cascade1,
       cout <<  "Can't capture frame" << endl ;
       break;
     }
-    detect(frame, cascade1, cascade2);
+    detect(frame, cascade1, cascade2, cascade3, cascade4);
     imshow("video", frame);
     if(cvWaitKey(30) >= 0) finish = true;
   }
@@ -164,22 +213,24 @@ int main(int argc, char** argv) {
   }
 
   string foldername = (argc == 1) ? "" : argv[1];
-  CascadeClassifier faces_cascade, eyes_cascade;
+  CascadeClassifier faces_cascade, eyes_cascade, left_eye_cascade, right_eye_cascade;
   
   if( 
      !faces_cascade.load(FACES_CASCADE_NAME) 
-     || !eyes_cascade.load(EYES_CASCADE_NAME)) {
-    cerr << FACES_CASCADE_NAME << " or " << EYES_CASCADE_NAME
+     || !eyes_cascade.load(EYES_CASCADE_NAME)
+     || !left_eye_cascade.load(LEFT_EYE)
+     || !right_eye_cascade.load(RIGHT_EYE)) {
+    cerr << FACES_CASCADE_NAME << " or " << EYES_CASCADE_NAME << " or " << LEFT_EYE << " or " << RIGHT_EYE
      << " are not in a proper cascade format" << endl;
     return(-1);
   }
 
   int detections = 0;
   if(argc == 2) {
-    detections = runonFolder(faces_cascade, eyes_cascade, foldername);
+    detections = runonFolder(faces_cascade, eyes_cascade, left_eye_cascade, right_eye_cascade, foldername);
     cout << "Total of " << detections << " detections" << endl;
   }
-  else runonVideo(faces_cascade, eyes_cascade);
+  else runonVideo(faces_cascade, eyes_cascade, left_eye_cascade, right_eye_cascade);
 
   return(0);
 }
