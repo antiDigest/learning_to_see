@@ -16,12 +16,12 @@ using namespace cv;
    Set OPENCV_ROOT to the location of opencv in your system
 */
 // string OPENCV_ROOT = "C:/opencv/";
-// string cascades = OPENCV_ROOT + "build/etc/haarcascades/";
-string FACES_CASCADE_NAME = "haarcascade_frontalface_alt.xml";
+string cascades = "cascades/";
+string FACES_CASCADE_NAME = cascades + "haarcascade_frontalface_alt.xml";
 
 /*  The mouth cascade is assumed to be in the local folder */
-string MOUTH_CASCADE_NAME = "Mouth.xml";
-
+string MOUTH_CASCADE_NAME = cascades + "Mouth.xml";
+string text = "SHUSH!";
 
 void drawEllipse(Mat frame, const Rect rect, int r, int g, int b) {
   int width2 = rect.width/2;
@@ -44,7 +44,7 @@ bool detectSilence(Mat frame, Point location, Mat ROI, CascadeClassifier cascade
 {
   // frame,location are used only for drawing the detected mouths
     vector<Rect> mouths;
-    cascade.detectMultiScale(ROI, mouths, 1.1, 3, 0, Size(20, 20));
+    cascade.detectMultiScale(ROI, mouths, 1.09, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
 
     int nmouths = (int)mouths.size();
     for( int i = 0; i < nmouths ; i++ ) {
@@ -69,7 +69,7 @@ int detect(Mat frame,
 
 
   cascade_face.detectMultiScale(frame_gray, faces, 
-			   1.1, 3, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30));
+			   1.09, 8, CV_HAAR_DO_CANNY_PRUNING, Size(30, 30));
 
   /* frame_gray - the input image
      faces - the output detections.
@@ -87,14 +87,15 @@ int detect(Mat frame,
   int nfaces = (int)faces.size();
   for( int i = 0; i < nfaces ; i++ ) {
     Rect face = faces[i];
-    drawEllipse(frame, face, 255, 0, 255);
+    drawRect(frame, face, 255, 0, 255);
     int x1 = face.x;
-    int y1 = face.y + face.height/2;
-    Rect lower_face =  Rect(x1, y1, face.width, face.height/2);
-    drawEllipse(frame, lower_face, 100, 0, 255);
+    int y1 = face.y + 2*face.height/3;
+    Rect lower_face =  Rect(x1, y1, face.width, face.height/3);
+    drawRect(frame, lower_face, 100, 100, 255);
     Mat lower_faceROI = frame_gray(lower_face);
     if(detectSilence(frame, Point(x1, y1), lower_faceROI, cascade_mouth)) {
-      drawEllipse(frame, face, 0, 255, 0);
+      drawRect(frame, face, 0, 255, 0);
+      putText(frame, text, Point(lower_face.x, lower_face.y), CV_FONT_HERSHEY_PLAIN, 1.0, cvScalar(0,255,0), 1, CV_AA);
       detected++;
     }
   }
