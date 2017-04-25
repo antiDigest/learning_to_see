@@ -2,10 +2,7 @@ FILES	= detectWink.cpp detectSilence.cpp Makefile
 CFLAGS  =`pkg-config --cflags --libs opencv`
 CC      = clang++
 
-all: detect.o detectWink.o detectSilence.o
-
-detect.o: detect.cpp
-	$(CC) -ggdb $(CFLAGS) $< -o $@
+all: detectWink.o detectSilence.o
 
 detectWink.o: detectWink.cpp
 	$(CC) -ggdb $(CFLAGS) $< -o $@
@@ -24,6 +21,9 @@ runwink2:
 
 silence:
 	./detectSilence.o
+
+silence2:
+	./detectSilence.o ./shush
 
 clean:
 	rm -rf *.o.*
