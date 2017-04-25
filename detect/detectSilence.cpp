@@ -44,7 +44,7 @@ bool detectSilence(Mat frame, Point location, Mat ROI, CascadeClassifier cascade
 {
   // frame,location are used only for drawing the detected mouths
     vector<Rect> mouths;
-    cascade.detectMultiScale(ROI, mouths, 1.09, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
+    cascade.detectMultiScale(ROI, mouths, 1.2, 8, CV_HAAR_DO_CANNY_PRUNING, Size(20, 20));
 
     int nmouths = (int)mouths.size();
     for( int i = 0; i < nmouths ; i++ ) {
@@ -69,7 +69,7 @@ int detect(Mat frame,
 
 
   cascade_face.detectMultiScale(frame_gray, faces, 
-			   1.09, 8, CV_HAAR_DO_CANNY_PRUNING, Size(30, 30));
+			   1.08, 8, CV_HAAR_DO_CANNY_PRUNING, Size(30, 30));
 
   /* frame_gray - the input image
      faces - the output detections.
