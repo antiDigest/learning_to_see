@@ -91,15 +91,21 @@ W_conv3_1b = weight_variable([1, 1, 128, 128])
 b_conv3_1b = bias_variable([128])
 
 h_conv3_1b = tf.nn.relu(conv2d(h_conv3_1, W_conv3_1b, 'SAME') + b_conv3_1b)
-print("Conv 3_2:" + str(h_conv3_1b.shape))
+print("Conv 3_1b:" + str(h_conv3_1b.shape))
 
-W_conv3_3 = weight_variable([5, 5, 64, 128])
-b_conv3_3 = bias_variable([128])
+W_conv3_2 = weight_variable([1, 1, 64, 128])
+b_conv3_2 = bias_variable([128])
 
-h_conv3_3 = tf.nn.relu(conv2d(h_conv2, W_conv3_3, 'SAME') + b_conv3_3)
-print("Conv 3_3:" + str(h_conv3_3.shape))
+h_conv3_2 = tf.nn.relu(conv2d(h_conv2, W_conv3_2, 'SAME') + b_conv3_2)
+print("Conv 3_2:" + str(h_conv3_2.shape))
 
-h_conv3 = (h_conv3_1b + h_conv3_3)
+W_conv3_2b = weight_variable([3, 3, 128, 128])
+b_conv3_2b = bias_variable([128])
+
+h_conv3_2b = tf.nn.relu(conv2d(h_conv3_2, W_conv3_2b, 'SAME') + b_conv3_2b)
+print("Conv 3_4:" + str(h_conv3_4.shape))
+
+h_conv3 = (h_conv3_1b + h_conv3_2b)
 print("Conv 3:" + str(h_conv3.shape))
 
 # Max Pooling Layer #2
