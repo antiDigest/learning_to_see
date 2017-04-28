@@ -156,7 +156,7 @@ y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
 cross_entropy = tf.reduce_mean(
     tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=y_conv))
-train_step = tf.train.AdamOptimizer(0.005).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(0.007).minimize(cross_entropy)
 #train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(Y, 1))
