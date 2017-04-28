@@ -102,30 +102,35 @@ print("Conv 3_3:" + str(h_conv3_3.shape))
 h_conv3 = (h_conv3_1b + h_conv3_3)
 print("Conv 3:" + str(h_conv3.shape))
 
+# Max Pooling Layer #2
+
+h_pool2 = max_pool_2x2(h_conv3, 'VALID')
+print("Pool 3:" + str(h_pool2.shape))
+
 # Convolutional Layer #4
 
-# W_conv4_1 = weight_variable([3, 3, 128, 256])
-# b_conv4_1 = bias_variable([256])
+W_conv4_1 = weight_variable([1, 1, 128, 256])
+b_conv4_1 = bias_variable([256])
 
-# h_conv4_1 = tf.nn.relu(conv2d(h_conv3, W_conv4_1, 'SAME') + b_conv4_1)
-# print("Conv 4_1:" + str(h_conv4_1.shape))
+h_conv4_1 = tf.nn.relu(conv2d(h_pool2, W_conv4_1, 'VALID') + b_conv4_1)
+print("Conv 4_1:" + str(h_conv4_1.shape))
 
-# W_conv4_2 = weight_variable([5, 5, 128, 256])
+# W_conv4_2 = weight_variable([1, 1, 128, 256])
 # b_conv4_2 = bias_variable([256])
 
-# h_conv4_2 = tf.nn.relu(conv2d(h_conv3, W_conv4_2, 'SAME') + b_conv4_2)
+# h_conv4_2 = tf.nn.relu(conv2d(h_pool2, W_conv4_2, 'SAME') + b_conv4_2)
 # print("Conv 4_2:" + str(h_conv4_2.shape))
 
 
-# h_conv4 = (h_conv4_1 + h_conv4_2)
-# print("Conv 4:" + str(h_conv4.shape))
+h_conv4 = (h_conv4_1)
+print("Conv 4:" + str(h_conv4.shape))
 
 # Densely Connected Layer
 
-W_fc1 = weight_variable([7 * 7 * 128, 1024])
+W_fc1 = weight_variable([3 * 3 * 256, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool4_flat = tf.reshape(h_conv3, [-1, 7 * 7 * 128])
+h_pool4_flat = tf.reshape(h_conv4, [-1, 3 * 3 * 256])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool4_flat, W_fc1) + b_fc1)
 print("FC 6:" + str(h_fc1.shape))
 
