@@ -115,22 +115,22 @@ b_conv4_1 = bias_variable([256])
 h_conv4_1 = tf.nn.relu(conv2d(h_pool2, W_conv4_1, 'VALID') + b_conv4_1)
 print("Conv 4_1:" + str(h_conv4_1.shape))
 
-# W_conv4_2 = weight_variable([1, 1, 128, 256])
-# b_conv4_2 = bias_variable([256])
+W_conv4_2 = weight_variable([1, 1, 256, 512])
+b_conv4_2 = bias_variable([512])
 
-# h_conv4_2 = tf.nn.relu(conv2d(h_pool2, W_conv4_2, 'SAME') + b_conv4_2)
-# print("Conv 4_2:" + str(h_conv4_2.shape))
+h_conv4_2 = tf.nn.relu(conv2d(h_conv4_1, W_conv4_2, 'VALID') + b_conv4_2)
+print("Conv 4_2:" + str(h_conv4_2.shape))
 
 
-h_conv4 = (h_conv4_1)
+h_conv4 = (h_conv4_2)
 print("Conv 4:" + str(h_conv4.shape))
 
 # Densely Connected Layer
 
-W_fc1 = weight_variable([3 * 3 * 256, 1024])
+W_fc1 = weight_variable([3 * 3 * 512, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool4_flat = tf.reshape(h_conv4, [-1, 3 * 3 * 256])
+h_pool4_flat = tf.reshape(h_conv4, [-1, 3 * 3 * 512])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool4_flat, W_fc1) + b_fc1)
 print("FC 6:" + str(h_fc1.shape))
 
