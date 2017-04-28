@@ -80,27 +80,27 @@ print("Conv 2:" + str(h_conv2.shape))
 
 # Convolutional Layer #3
 
-# W_conv3_1 = weight_variable([3, 3, 64, 128])
-# b_conv3_1 = bias_variable([128])
+W_conv3_1 = weight_variable([3, 3, 64, 128])
+b_conv3_1 = bias_variable([128])
 
-# h_conv3_1 = tf.nn.relu(conv2d(h_conv2, W_conv3_1, 'SAME') + b_conv3_1)
-# print("Conv 3_1:" + str(h_conv3_1.shape))
+h_conv3_1 = tf.nn.relu(conv2d(h_conv2, W_conv3_1, 'SAME') + b_conv3_1)
+print("Conv 3_1:" + str(h_conv3_1.shape))
 
 
-# W_conv3_1b = weight_variable([1, 1, 128, 128])
-# b_conv3_1b = bias_variable([128])
+W_conv3_1b = weight_variable([1, 1, 128, 128])
+b_conv3_1b = bias_variable([128])
 
-# h_conv3_1b = tf.nn.relu(conv2d(h_conv3_1, W_conv3_1b, 'SAME') + b_conv3_1b)
-# print("Conv 3_2:" + str(h_conv3_1b.shape))
+h_conv3_1b = tf.nn.relu(conv2d(h_conv3_1, W_conv3_1b, 'SAME') + b_conv3_1b)
+print("Conv 3_2:" + str(h_conv3_1b.shape))
 
-# W_conv3_3 = weight_variable([5, 5, 64, 128])
-# b_conv3_3 = bias_variable([128])
+W_conv3_3 = weight_variable([5, 5, 64, 128])
+b_conv3_3 = bias_variable([128])
 
-# h_conv3_3 = tf.nn.relu(conv2d(h_conv2, W_conv3_3, 'SAME') + b_conv3_3)
-# print("Conv 3_3:" + str(h_conv3_3.shape))
+h_conv3_3 = tf.nn.relu(conv2d(h_conv2, W_conv3_3, 'SAME') + b_conv3_3)
+print("Conv 3_3:" + str(h_conv3_3.shape))
 
-# h_conv3 = (h_conv3_1b + h_conv3_3)
-# print("Conv 3:" + str(h_conv3.shape))
+h_conv3 = (h_conv3_1b + h_conv3_3)
+print("Conv 3:" + str(h_conv3.shape))
 
 # Convolutional Layer #4
 
@@ -122,10 +122,10 @@ print("Conv 2:" + str(h_conv2.shape))
 
 # Densely Connected Layer
 
-W_fc1 = weight_variable([7 * 7 * 64, 1024])
+W_fc1 = weight_variable([7 * 7 * 128, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool4_flat = tf.reshape(h_conv2, [-1, 7 * 7 * 64])
+h_pool4_flat = tf.reshape(h_conv3, [-1, 7 * 7 * 128])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool4_flat, W_fc1) + b_fc1)
 print("FC 6:" + str(h_fc1.shape))
 
