@@ -44,7 +44,7 @@ print("Pool 0:" + str(h_pool0.shape))
 
 # Convolutional Layer #1
 
-W_conv1 = weight_variable([5, 5, 1, 32])
+W_conv1 = weight_variable([3, 3, 1, 32])
 b_conv1 = bias_variable([32])
 
 h_conv1 = tf.nn.relu(conv2d(h_pool0, W_conv1, 'SAME') + b_conv1)
