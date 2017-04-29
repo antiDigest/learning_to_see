@@ -50,40 +50,40 @@ b_conv1 = bias_variable([32])
 h_conv1 = tf.nn.relu(conv2d(h_pool0, W_conv1, 'SAME') + b_conv1)
 print("Conv 1:" + str(h_conv1.shape))
 
-# Max-Pool Layer #1
-
-h_pool1 = max_pool_2x2(h_conv1, 'VALID')
-print("Pool 2:" + str(h_pool1.shape))
-
 # Convolutional Layer #2
 
 W_conv2_1 = weight_variable([3, 3, 32, 64])
 b_conv2_1 = bias_variable([64])
 
-h_conv2_1 = tf.nn.relu(conv2d(h_pool1, W_conv2_1, 'SAME') + b_conv2_1)
+h_conv2_1 = tf.nn.relu(conv2d(h_conv1, W_conv2_1, 'SAME') + b_conv2_1)
 print("Conv 2_1:" + str(h_conv2_1.shape))
 
 W_conv2_2 = weight_variable([1, 1, 32, 64])
 b_conv2_2 = bias_variable([64])
 
-h_conv2_2 = tf.nn.relu(conv2d(h_pool1, W_conv2_2, 'SAME') + b_conv2_2)
+h_conv2_2 = tf.nn.relu(conv2d(h_conv1, W_conv2_2, 'SAME') + b_conv2_2)
 print("Conv 2_2:" + str(h_conv2_2.shape))
 
 W_conv2_3 = weight_variable([5, 5, 32, 64])
 b_conv2_3 = bias_variable([64])
 
-h_conv2_3 = tf.nn.relu(conv2d(h_pool1, W_conv2_3, 'SAME') + b_conv2_3)
+h_conv2_3 = tf.nn.relu(conv2d(h_conv1, W_conv2_3, 'SAME') + b_conv2_3)
 print("Conv 2_3:" + str(h_conv2_3.shape))
 
 h_conv2 = (h_conv2_1 + h_conv2_2 + h_conv2_3)
 print("Conv 2:" + str(h_conv2.shape))
+
+# Max-Pool Layer #1
+
+h_pool1 = max_pool_2x2(h_conv2, 'VALID')
+print("Pool 2:" + str(h_pool1.shape))
 
 # Convolutional Layer #3
 
 W_conv3_1 = weight_variable([3, 3, 64, 128])
 b_conv3_1 = bias_variable([128])
 
-h_conv3_1 = tf.nn.relu(conv2d(h_conv2, W_conv3_1, 'SAME') + b_conv3_1)
+h_conv3_1 = tf.nn.relu(conv2d(h_pool1, W_conv3_1, 'SAME') + b_conv3_1)
 print("Conv 3_1:" + str(h_conv3_1.shape))
 
 
@@ -96,7 +96,7 @@ print("Conv 3_1b:" + str(h_conv3_1b.shape))
 W_conv3_2 = weight_variable([1, 1, 64, 128])
 b_conv3_2 = bias_variable([128])
 
-h_conv3_2 = tf.nn.relu(conv2d(h_conv2, W_conv3_2, 'SAME') + b_conv3_2)
+h_conv3_2 = tf.nn.relu(conv2d(h_pool1, W_conv3_2, 'SAME') + b_conv3_2)
 print("Conv 3_2:" + str(h_conv3_2.shape))
 
 W_conv3_2b = weight_variable([3, 3, 128, 128])
