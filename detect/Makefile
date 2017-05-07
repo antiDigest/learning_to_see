@@ -1,4 +1,4 @@
-FILES	= detectWink.cpp detectSilence.cpp Makefile
+FILES	= detectWink.cpp detectSilence.cpp Makefile README.txt
 CFLAGS  =`pkg-config --cflags --libs opencv`
 CC      = clang++
 
@@ -17,7 +17,7 @@ runwink:
 	./detectWink.o
 
 runwink2:
-	./detectWink.o ./images
+	./detectWink.o ./wink
 
 silence:
 	./detectSilence.o
@@ -32,3 +32,6 @@ clean:
 
 zip:
 	zip project2.zip $(FILES)
+
+zip2:
+	zip homework10.zip proj3.py README.txt
