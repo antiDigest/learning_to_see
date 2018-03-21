@@ -49,7 +49,7 @@ def findContourCenter(mask, original, centers):
             circularity = area / approx**2.
 
             print circularity, radius
-            if ((circularity > 0.8)) and radius > 5:
+            if ((circularity > 0.79)) and radius > 5:
                 # contour_list.append(contour)
                 cv2.circle(original, (int(center[0]), int(center[1])), int(radius),
                            (255, 0, 0), 2)
@@ -75,7 +75,7 @@ def drawPath(centers, original):
     return original
 
 
-def writeSpeed(centers, original, seconds):
+def writeSpeed(centers, original, numFrames, fps):
     """
         Writes the speed on top left corner of the video file.
         * Speed is written in pixels per second
@@ -84,9 +84,8 @@ def writeSpeed(centers, original, seconds):
     l = len(centers) - 1
 
     pixels = euclidean(centers[l - 1], centers[l])
-    seconds = time.time() - seconds
 
-    speed = pixels / seconds
+    speed = pixels * fps / numFrames
     text = "{0:.3f}".format(speed)
     cv2.putText(original, str(text) + " p/s", (300, 70),
                 cv2.FONT_HERSHEY_COMPLEX, 1, 255)
@@ -99,8 +98,12 @@ def captureVideo(query):
         ALGORITHM:
 
         * captures the video stream
-        * calls the getCircles function to find all the circular object of a single color
-        * stores the last found detection and returns it for further processing.
+        * subtracts the previous frame (background) to find the moving object
+        * calculates the threshold of the resulting image
+        * checks if the thresholded image has a moving object
+        * if yes, checks if the object is a ball
+        * if yes, marks the ball and tracks its center
+        * center is used for drawing path
 
     """
 
@@ -109,12 +112,12 @@ def captureVideo(query):
     else:
         cap = cv2.VideoCapture(query)
         numFrames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+
+    print fps
 
     background = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2GRAY)
-    # (h, w) = last_image.shape[:2]
-
-    # fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    # out = cv2.VideoWriter(outfile, fourcc, fps, (w, h))
+    black = cv2.subtract(background, background)
 
     centers = []
     start = time.time()
@@ -125,15 +128,9 @@ def captureVideo(query):
 
         frameCount += 1
 
-        # frame = cv2.medianBlur(frame, 5)
-
-        black = cv2.subtract(background, background)
-
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (11, 11), 0)
         frameDelta = cv2.subtract(gray, background)
-        # (score, diff) = compare_ssim(background, gray, full=True)
-        # diff = (diff * 255).astype("uint8")
         thresh = cv2.threshold(frameDelta, 65, 255, cv2.THRESH_BINARY)[1]
         # thresh = cv2.erode(thresh, None, iterations=2)
         thresh = cv2.dilate(thresh, None, iterations=4)
@@ -147,17 +144,18 @@ def captureVideo(query):
         if len(centers) > 1:
             path = drawPath(centers, black)
             if circle is not None:
-                result, speed = writeSpeed(centers, result, seconds)
+                result, speed = writeSpeed(
+                    centers, result, frameCount - framesTillNow, fps)
                 avgSpeed += speed
         else:
             path = black
-            seconds = time.time()
+        framesTillNow = frameCount
 
         background = gray
 
         cv2.imshow('Motion Detection', result)
         cv2.imshow('Path', path)
-        # break
+
         if (cv2.waitKey(1) & 0xFF == ord('q')) or frameCount == int(numFrames) - 1:
             break
 
@@ -168,10 +166,7 @@ def captureVideo(query):
     print "Time Noted:", (end - start)
 
     cap.release()
-    # out.release()
     cv2.destroyAllWindows()
-
-    # return last_image
 
 
 def main():
