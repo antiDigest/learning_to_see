@@ -14,9 +14,7 @@ The Intrinsic RGB matrix file contains:
 Corresponding 3x3 matrix would be:
  
 m = 	[1034.3		0		0]
-
-	[1.6609		1034.3		0
-]
+	[1.6609		1034.3		0]
 	[970.63		529.07		1]
 
 p = [x y z]
