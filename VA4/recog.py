@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from glob import glob
+from utils import *
 
 
 TRAIN = "train/"
@@ -15,27 +16,53 @@ rf = cv2.ml.RTrees_create()
 
 
 def runCapture(clf):
+    (winW, winH) = (64, 64)
     cap = cv2.VideoCapture(0)
 
     while(1):
         ret, frame = cap.read()
 
-        kp, des = surf.detectAndCompute(frame, None)
-        histogram = bow_ext.compute(frame, kp)
-        value = rf.predict(histogram)
-        cv2.drawKeypoints(frame, kp, frame)
+        # frame = cv2.imread(image)
+        maxVote = 0
+        found = None
 
-        print value
-        if value[0] == 0.0:
-            continue
-        if value[0] == 1.0:
-            string = "TEMOC"
-        else:
-            string = "NOT TEMOC"
-        cv2.putText(frame, string, (50, 50),
-                    cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255))
+        # Loop over the different window sizes
+        for (winW, winH) in windows:
+            # loop over the image pyramid
+            for resized in pyramid(frame):
+                # loop over the sliding window for each layer of the pyramid
+                for (x, y, window) in sliding_window(resized, stepSize=32, windowSize=(winW, winH)):
+                    # if the window does not meet our desired window size, ignore
+                    # it
+                    if window.shape[0] != winH or window.shape[1] != winW:
+                        continue
+
+                    kp, des = surf.detectAndCompute(window, None)
+                    histogram = bow_ext.compute(window, kp)
+                    value = rf.predict(histogram)
+
+                    # if value > max
+
+                    # since we do not have a classifier, we'll just draw the
+                    # window
+                    if value[0] == 1.0:
+                        votes = rf.getVotes(histogram, 0)
+
+                        if (votes[1, 0] > maxVote):
+                            maxVote = votes[1, 0]
+                            found = (maxVote, (x, y, x + winW, y + winH),
+                                     frame.shape[1] / resized.shape[1])
+
+        if found != None:
+            (vote, window, r) = found
+            startx, starty, endx, endy = (w * r for w in window)
+            cv2.putText(frame, "Temoc " + str(vote), (startx, starty),
+                        cv2.FONT_HERSHEY_DUPLEX, 0.6, (0, 0, 255))
+            cv2.rectangle(frame, (startx, starty),
+                          (endx, endy), (0, 255, 0), 2)
 
         cv2.imshow("Temoc", frame)
+        # cv2.waitKey(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
@@ -48,6 +75,7 @@ def main():
     desc = []
 
     for file in glob(TRAIN + "*"):
+        print file
         frame = cv2.imread(file)
 
         kp, des = surf.detectAndCompute(frame, None)
@@ -70,7 +98,7 @@ def main():
     print "svm items", np.shape(train_x)
     print "labels", np.shape(train_y)
     rtree_params = dict(max_depth=5, min_sample_count=5, use_surrogates=False,
-                        max_categories=15, calc_var_importance=False,
+                        max_categories=15, calc_var_importance=True,
                         nactive_vars=0, max_num_of_trees_in_the_forest=1000,
                         termcrit_type=cv2.TERM_CRITERIA_MAX_ITER)
     rf.train(np.float32(train_x), cv2.ml.ROW_SAMPLE, np.array(train_y))
@@ -94,6 +122,7 @@ def main():
     acc = 0.
     total = 0.
     for file in glob(TEST + "*"):
+        print file
         y = file.split("/")[1][0]
         frame = cv2.imread(file)
         kp, des = surf.detectAndCompute(frame, None)

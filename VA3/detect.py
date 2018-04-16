@@ -117,9 +117,9 @@ def getCircles(original, centers):
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    # circles = findContourCenter(green, original)
+    # circles, centers = findContourCenter(green, original, centers)
     circles, centers = findContourCenter(red, original, centers)
-    # circles = findContourCenter(blue, circles)
+    # circles, centers = findContourCenter(blue, circles, centers)
 
     return circles, centers
 

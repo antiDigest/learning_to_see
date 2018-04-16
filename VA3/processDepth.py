@@ -21,25 +21,16 @@ def colorTransform(color, depthPixel):
 
     if depthPixel[0] < 0 or depthPixel[1] < 0:
         return alternate
-    if depthPixel[0] >= color.shape[1] or depthPixel[1] >= color.shape[0]:
+    if depthPixel[1] >= color.shape[0] or depthPixel[0] >= color.shape[1]:
         return alternate
 
     return color[int(depthPixel[1]), int(depthPixel[0])]
 
 
-def invTransform(pixel, invIr, tdc, iRgb):
-    p1 = pixel[:] / iRgb
+def transform(pixel, invIr, tdc, iRgb, x, y):
+    p1 = np.multiply(pixel, [x, y, 1])
 
-    p2 = p1[:] / tdc[:3, :3] - tdc[3, :3]
-
-    p3 = p2[:] / invIr
-
-    return p3
-
-
-def transform(pixel, invIr, tdc, iRgb):
-
-    p1 = pixelTransform(pixel, invIr)
+    p1 = pixelTransform(p1, invIr)
 
     p2 = pixelTransform(p1, tdc[:3, :3]) + tdc[3, :3]
 
@@ -54,11 +45,12 @@ def depthToRgb(image, invIr, tdc, iRgb, color):
     colorized = cv2.resize(color.copy(), (w, h))
     dToRgb = colorized.copy()
 
-    for x in range(0, w):
-        for y in range(0, h):
-            p1 = np.multiply(image[y, x], [x, y, 1])
-            p3 = transform(p1, invIr, tdc, iRgb)
-            colorized[y, x] = colorTransform(color, np.rint(p3))
+    for x in range(0, h):
+        for y in range(0, w):
+            p3 = transform(image[x, y], invIr, tdc, iRgb, y, x)
+
+            if image[x, y] > 0:
+                colorized[x, y] = colorTransform(color, np.rint(p3))
 
     return colorized
 
@@ -107,22 +99,29 @@ def processImage(queries, folder):
         cv2.normalize(colorized, colorized, 0, 255, cv2.NORM_MINMAX)
 
         end = time.time()
-        print "Transformation Time: ", end - start
+        # print "Transformation Time: ", end - start
 
         image, centers = getCircles(colorized, [])
 
-        c1 = transform(np.append(centers[0], 1), invIntrinsicIR,
-                       transformationDC, intrinsicRGB)
-        c2 = transform(np.append(centers[1], 1), invIntrinsicIR,
-                       transformationDC, intrinsicRGB)
-        # print c1, c2
-        dist.append(euclidean(c1, c2))
+        y, x = centers[0]
+        center = depthImage[int(x), int(y)]
+        p1 = np.multiply(center, [x, y, 1])
+        c1 = pixelTransform(p1, invIntrinsicIR)
+
+        x, y = centers[1]
+        center = depthImage[int(x), int(y)]
+        p1 = np.multiply(center, [x, y, 1])
+        c2 = pixelTransform(p1, invIntrinsicIR)
+
+        distance = euclidean(c1, c2)
+
+        dist.append(distance)
         images.append(image)
 
-    print "Relative Velocity:", np.absolute(dist[0] - dist[1]) / 1.300, "meters/second"
+    print "Relative Velocity:", np.absolute(np.sum(dist)) / 1300, "meters/second"
 
     cv2.imshow('Colorized Depth Image', np.hstack(images))
-    # cv2.imwrite("colorizedDepthImage.png", colorized)
+    cv2.imwrite("colorizedDepthImage.png", np.hstack(images))
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
