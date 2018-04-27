@@ -1,0 +1,3 @@
+[submodule "touchscreen"]
+	path = touchscreen
+	url = https://github.com/evamy/touchscreen
