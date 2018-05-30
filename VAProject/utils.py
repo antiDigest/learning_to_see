@@ -1,3 +1,9 @@
+
+"""
+    @author: Antriksh Agarwal
+    Version 0: 04/29/2018
+"""
+
 import numpy as np
 import cv2
 import time

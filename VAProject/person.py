@@ -1,3 +1,9 @@
+
+"""
+    @author: Antriksh Agarwal
+    Version 0: 04/29/2018
+"""
+
 import cv2
 import numpy as np
 from utils import *
@@ -11,24 +17,13 @@ imgs = ['data/find1(9).jpg', 'data/find1(10).jpg']
 
 
 def detect_person(image):
-
-    # detect people in the image
-    start = time.time()
     (rects, weights) = hog.detectMultiScale(
-        image, winStride=(6, 6), scale=1.05)
-    print "Detection time:", time.time() - start
-
+        image, winStride=(4, 4), padding=(32, 32), scale=1.05)
     rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
-    pick = non_max_suppression(rects, overlapThresh=0.65)
+    # print "Pedestrians: ", len(rects)
+    pick = non_max_suppression(rects, overlapThresh=0.5)
 
-    # detect face and draw the bounding boxes
-    for (xA, yA, xB, yB) in pick:
-        window = image[xA:xB, yA:yB]
-        image = detect_face(window)
-
-        cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
-
-    return image
+    return image, pick
 
 
 def video_capture():

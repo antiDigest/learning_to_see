@@ -1,18 +1,27 @@
+
+"""
+    @author: Antriksh Agarwal
+    Version 0: 04/29/2018
+"""
+
 import cv2
 import numpy as np
+from utils import *
+import time
 
-faceCascade = cv2.CascadeClassifier('face.xml')
+faceCascade = cv2.CascadeClassifier('models/face.xml')
 
 
 def detect_face(image):
 
+    # start = time.time()
     faces = faceCascade.detectMultiScale(
-        image, scaleFactor=1.15, minNeighbors=5)
+        image, scaleFactor=1.05, minNeighbors=5)
+    # print "Face Time: ", time.time() - start
+    faces = non_max_suppression(faces, overlapThresh=0.5)
+    #     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 165, 255), 2)
 
-    for (x, y, w, h) in faces:
-        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 165, 255), 2)
-
-    return image
+    return faces
 
 
 def video_capture():
@@ -24,8 +33,7 @@ def video_capture():
         _, frame = cap.read()
 
         # frame = cv2.imread(frame)
-
-        image = frame.copy()
+        image = cv2.resize(frame, (0, 0), fx=0.6, fy=0.6)
 
         image = detect_face(image)
 
